@@ -471,7 +471,8 @@ class FileBrowser {
         JFrame f = (JFrame)gui.getTopLevelAncestor();
         if (f!=null) {
             f.setTitle(
-                APP_TITLE +
+                //APP_TITLE +
+            	"SSH" + 
                 " :: " +
                 fileSystemView.getSystemDisplayName(file) );
         }
@@ -479,7 +480,7 @@ class FileBrowser {
         gui.repaint();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         SwingUtilities.invokeLater(new Runnable() {
             public void run() {
                 try {
@@ -511,7 +512,7 @@ class FileBrowser {
                 FileBrowser.showRootFile();
             }
         });
-    }
+    }*/
 }
 
 /** A TableModel to hold File[]. */

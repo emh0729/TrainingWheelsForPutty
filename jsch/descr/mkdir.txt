@@ -1,0 +1,4 @@
+mkdir - make directories
+mkdir [OPTION]... DIRECTORY...
+-m set file mode 
+-p no error if existing, make parent directories as needed

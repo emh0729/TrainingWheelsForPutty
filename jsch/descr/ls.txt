@@ -1,0 +1,26 @@
+ls - list directory contents
+ls -OPTIONS FILENAME
+-a do not ignore entries starting with .
+-A do not list implied . and ..
+-C list entries by columns
+-d list directory entries instead of contents
+-f do not sort, enable -aU, disable -ls --color
+-g like -l, but do not list owner
+-G in a long listing, don't print group names
+-h with -l, print sizes in human readable format 
+-i print the index number of each file
+-l use a long listing format
+-m fill width with a comma separated list of entries
+-n like -l, but list numeric user and group IDs
+-o like -l, but do not list group information
+-Q enclose entry names in double quotes
+-r reverse order while sorting
+-R list subdirectories recursively
+-s print the allocated size of each file, in blocks
+-S sort by file size
+-t sort by modification time
+-u show access time and sort by name
+-U do not sort; list entries in directory order
+-x list entries by lines instead of by columns
+-X sort alphabetically by entry extension
+-1 list one file per line

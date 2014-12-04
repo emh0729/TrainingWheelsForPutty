@@ -1,0 +1,9 @@
+rm - remove files or directories
+rm [OPTIONS] [FILE...]
+-f, --force ignore nonexistent files, never prompt
+-i prompt before every removal
+-I  prompt once before removing  more than  three  files,  or  when removing recursively
+-r, -R, --recursive remove directories and their contents recursively
+-v, --verbose explain what is being done
+--help display this help and exit
+--version output version information and exit

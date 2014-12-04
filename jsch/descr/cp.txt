@@ -1,0 +1,16 @@
+cp - copy files and directories
+cp [OPTION]... SOURCE... DESTINATION
+--attributes-only don't copy the file data, just the attributes
+-b  make a backup of each existing destination file
+--copy-contents copy contents of special files when recursive
+-f if an existing destination file cannot be opened, remove it and try again 
+-i prompt before overwrite
+-l link files instead of copying
+-n do not overwrite an existing	file
+-p  preserve ownerships and timestamps
+-R, -r copy directories recursively
+-s make symbolic links instead of copying
+-t copy all SOURCE arguments into DIRECTORY
+-T treat DESTINATION as a normal file
+-u copy only when the SOURCE file is newer than the destination file or when the destination file is missing
+-x stay on this file system

@@ -1,8 +1,10 @@
 
 
+import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -11,71 +13,113 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Collections;
+import java.util.Vector;
 
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 
-public class Terminal extends javax.swing.JPanel {
+public class Terminal extends JPanel {
 	/** Creates new form CelsiusConverterGUI */
+    private JTextArea prevCmds;     
+    private JTextField terminalInput;
+    private JTextArea helpText;
+    private Help helpTxt;
+    private CapturePane capturePane;
+	
     public Terminal() {
+    	helpTxt = new Help();
         initComponents();
+    }
+    
+    public String printVector(Vector<String> vec)
+    {
+    	String out = "";
+    	for(int i = 0; i < vec.size(); i++)
+    	{
+    		out = out + vec.get(i) + "\n"; 
+    	}
+    	return out;
     }
     
     public void initComponents()
     {
-    	tempTextField = new javax.swing.JTextField(48);
+    	terminalInput = new javax.swing.JTextField(82);
+    	terminalInput.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.<AWTKeyStroke> emptySet());
+    	
     	prevCmds = new javax.swing.JTextArea(24,24);
     	prevCmds.setBackground(new Color(0,0,0,100));
     	prevCmds.setForeground(new Color(255,255,255,100));
     	prevCmds.setEditable(false);
     	prevCmds.setLineWrap(true);
-    	CapturePane capturePane = new CapturePane();
-    	javax.swing.JScrollPane sp = new javax.swing.JScrollPane( prevCmds, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER );
     	
-    	/*tempTextField.addKeyListener(new KeyListener() {
+    	helpText = new javax.swing.JTextArea();
+    	helpText.setEditable(false);
+    	helpText.setLineWrap(true);
+    	
+    	JScrollPane help = new JScrollPane(helpText);
+    	
+    	capturePane = new CapturePane();
+    	
+    	terminalInput.addKeyListener(new KeyListener() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				// TODO Auto-generated method stub
-				
+				if(arg0.getKeyCode() == KeyEvent.VK_TAB)
+				{
+					//auto-fill with a file/directory name in the current directory
+					//or just send the tab key, if possible
+					terminalInput.setText(terminalInput.getText() + ((char)9));
+				}
 			}
 
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				// TODO Auto-generated method stub
 				
 			}
 
 			@Override
 			public void keyTyped(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-				
+				Vector<String> tmp;
+				if(terminalInput.getText().indexOf(' ') >= 0)
+				{
+					tmp = helpTxt.keyDescr(terminalInput.getText().substring(0, terminalInput.getText().indexOf(' ')));
+				}
+				else
+				{
+					tmp = helpTxt.keyDescr(terminalInput.getText());
+				}
+				if(tmp != null)
+				{
+					helpText.setText(printVector(tmp));
+				}
+				else
+				{
+					helpText.setText("");
+				}
+					
 			}
-		});*/
-    	TexfFieldStreamer ts = new TexfFieldStreamer(tempTextField);
-    	tempTextField.addActionListener(ts);
+		});
+    	TexfFieldStreamer ts = new TexfFieldStreamer(terminalInput);
+    	terminalInput.addActionListener(ts);
     	
     	System.setIn(ts);
     	
-    	//setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-    	//setTitle("SSH");
+    	TerminalPane tp = new TerminalPane();
+    	JSplitPane sps = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tp, help);
+    	sps.setDividerLocation(Math.ceil(this.getHeight()* 2.0 / 3.0));
     	
-    	javax.swing.SpringLayout layout = new javax.swing.SpringLayout();
-    	layout.putConstraint(SpringLayout.NORTH, capturePane, 5, SpringLayout.NORTH, this);
-    	layout.putConstraint(SpringLayout.WEST, capturePane, 5, SpringLayout.WEST, this);
-    	//layout.putConstraint(SpringLayout.SOUTH, prevCmds, 5, SpringLayout.NORTH, tempTextField);
-    	layout.putConstraint(SpringLayout.EAST, this, 5, SpringLayout.EAST, capturePane);
-    	layout.putConstraint(SpringLayout.SOUTH, this, 35, SpringLayout.SOUTH, capturePane);
-    	layout.putConstraint(SpringLayout.NORTH, tempTextField, 5, SpringLayout.SOUTH, capturePane);
-    	layout.putConstraint(SpringLayout.WEST, tempTextField, 5, SpringLayout.WEST, this);
-    	//getRootPane().setLayout(layout);
-    	//getRootPane().add(tempTextField);
-    	//getRootPane().add(capturePane);
-    	this.setLayout(layout);
-    	this.add(tempTextField);
-    	this.add(capturePane);
+    	BorderLayout bl = new BorderLayout();
+    	this.setLayout(bl);
+    	bl.addLayoutComponent(sps, BorderLayout.CENTER);
+            
+    	this.add(sps);
     	
     	//this.pack();
     	
@@ -83,6 +127,30 @@ public class Terminal extends javax.swing.JPanel {
         System.setOut(new PrintStream(new StreamCapturer("STDOUT", capturePane, ps)));
     }
     
+    public class TerminalPane extends JPanel
+    {
+    	public TerminalPane()
+    	{
+    		initialize();
+    	}
+    	
+    	private void initialize()
+    	{
+        	SpringLayout layout = new SpringLayout();
+        	layout.putConstraint(SpringLayout.NORTH, capturePane, 5, SpringLayout.NORTH, this);
+        	layout.putConstraint(SpringLayout.WEST, capturePane, 5, SpringLayout.WEST, this);
+        	layout.putConstraint(SpringLayout.EAST, capturePane, -5, SpringLayout.EAST, this);
+        	layout.putConstraint(SpringLayout.SOUTH, this, 30, SpringLayout.SOUTH, capturePane);
+        	layout.putConstraint(SpringLayout.NORTH, terminalInput, 5, SpringLayout.SOUTH, capturePane);
+        	layout.putConstraint(SpringLayout.WEST, terminalInput, 5, SpringLayout.WEST, this);
+        	layout.putConstraint(SpringLayout.EAST, this, 5, SpringLayout.EAST, terminalInput);
+        	
+        	this.setLayout(layout);
+        	this.add(terminalInput);
+        	this.add(capturePane);
+    	}
+    	
+    }
     
     /**
      * @param args the command line arguments
@@ -94,18 +162,51 @@ public class Terminal extends javax.swing.JPanel {
             }
         });
     }
-     
-    // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel celsiusLabel;
-    private javax.swing.JButton convertButton;
-    private javax.swing.JLabel fahrenheitLabel;
-    private javax.swing.JTextField tempTextField;
-    // End of variables declaration//GEN-END:variables
-    
-    private javax.swing.JTextArea prevCmds;
 
+    
     public interface Consumer {        
         public void appendText(String text);        
+    }
+    
+    public boolean isDigits(String txt, int start, int end)
+    {
+    	for(int i = start; i < end; i++)
+    	{
+    		if(!((txt.charAt(i) >= '0' && txt.charAt(i) <= '9') || txt.charAt(i) == ';') && !(strIndexOf(txt, '[', i) != -1 && strIndexOf(txt, '[', i) < end))
+    		{
+    			return false;
+    		}
+    	}
+    	//System.out.println("Is digit");
+    	return true;
+    }
+    
+    public int strPrevIndexOf(String txt, char c, int start)
+    {
+    	if(start >= txt.length() || start < 0)
+    	{
+    		return -1;
+    	}
+    	for(int i = start; i >= 0; i--)
+    	{
+    		if(txt.charAt(i) == c)
+    			return i;
+    	}
+    	return -1;
+    }
+    
+    public int strIndexOf(String txt, char c, int start)
+    {
+    	if(start >= txt.length() || start < 0)
+    	{
+    		return -1;
+    	}
+    	for(int i = start; i < txt.length(); i++)
+    	{
+    		if(txt.charAt(i) == c)
+    			return i;
+    	}
+    	return -1;
     }
     
     public class CapturePane extends JPanel implements Consumer {
@@ -123,7 +224,17 @@ public class Terminal extends javax.swing.JPanel {
         @Override
         public void appendText(final String text) {
             if (EventQueue.isDispatchThread()) {
-                output.append(text);
+            	String outtxt = text;
+            	int pos = 0;
+            	while(strIndexOf(outtxt,'[', pos) >= 0 && strIndexOf(outtxt, 'm', outtxt.indexOf("[")) > outtxt.indexOf("[") && isDigits(outtxt, strPrevIndexOf(outtxt, '[', strIndexOf(outtxt, 'm', strIndexOf(outtxt, '[', 0)) )+ 1, strIndexOf(outtxt, 'm', strIndexOf(outtxt, '[', 0))))
+            	{
+            		outtxt = outtxt.substring(0, strPrevIndexOf(outtxt, '[', strIndexOf(outtxt, 'm', strIndexOf(outtxt, '[', 0)) )) + outtxt.substring(strIndexOf(outtxt, 'm', outtxt.indexOf("[")) + 1);
+            	}
+//            	for(int i =0; i < outtxt.length(); i+=5)
+//            	{
+//            		outtxt = outtxt.substring(0, i) + " " + ((int)outtxt.charAt(i)) / 100 + (((int)outtxt.charAt(i)) % 100) / 10 + ((int)outtxt.charAt(i)) % 10 + " " + outtxt.substring(i + 1);
+//            	}
+                output.append(outtxt);
                 output.setCaretPosition(output.getText().length());
             } else {
 
