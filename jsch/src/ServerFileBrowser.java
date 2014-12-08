@@ -1,5 +1,7 @@
 import java.awt.Color;
 import java.awt.LayoutManager;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.PrintStream;
 
 import javax.swing.*;
@@ -11,7 +13,8 @@ public class ServerFileBrowser extends JPanel {
     JLabel celsiusLabel;
     JButton convertButton;
     JLabel fahrenheitLabel;
-    JTextField tempTextField;
+    JButton folderButton;
+    public SSHManager sshmanager;
     // End of variables declaration//GEN-END:variables
     
     private javax.swing.JTextArea prevCmds;
@@ -23,48 +26,51 @@ public class ServerFileBrowser extends JPanel {
 	
 	public void initComponents()
     {
-    	tempTextField = new javax.swing.JTextField(48);
-    	prevCmds = new javax.swing.JTextArea(24,24);
-    	prevCmds.setBackground(new Color(0,0,0,100));
-    	prevCmds.setForeground(new Color(255,255,255,100));
-    	prevCmds.setEditable(false);
-    	prevCmds.setLineWrap(true);
-    	javax.swing.JScrollPane sp = new javax.swing.JScrollPane( prevCmds, JScrollPane.VERTICAL_SCROLLBAR_ALWAYS, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER );
-    	
-    	/*tempTextField.addKeyListener(new KeyListener() {
-			@Override
-			public void keyPressed(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void keyReleased(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-
-			@Override
-			public void keyTyped(KeyEvent arg0) {
-				// TODO Auto-generated method stub
-				
-			}
-		});*/
-    	
-    	//setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-    	//setTitle("SSH");
-    	
-    	javax.swing.SpringLayout layout = new javax.swing.SpringLayout();
-    	//layout.putConstraint(SpringLayout.SOUTH, prevCmds, 5, SpringLayout.NORTH, tempTextField);
-    	layout.putConstraint(SpringLayout.WEST, tempTextField, 5, SpringLayout.WEST, this);
-    	//getRootPane().setLayout(layout);
-    	//getRootPane().add(tempTextField);
-    	//getRootPane().add(capturePane);
-    	this.setLayout(layout);
-    	this.add(tempTextField);
+		folderButton = new JButton("folder");
+		folderButton.addMouseListener(new MyMouseListener());
+    	this.add(folderButton);
     	
     	//this.pack();
     	
     }
+	
+	public class MyMouseListener implements MouseListener{
+
+		@Override
+		public void mouseClicked(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			if(arg0.getClickCount() == 2)
+			{
+				String bigbird = sshmanager.sendCommand("ls");
+				bigbird.replaceAll("\\u001B\\[\\d+;\\d+m", "");
+				System.out.println(bigbird);
+			}
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseExited(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mousePressed(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+	}
 
 }
