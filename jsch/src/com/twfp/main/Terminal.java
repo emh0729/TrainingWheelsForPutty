@@ -4,6 +4,7 @@ package com.twfp.main;
 import java.awt.AWTKeyStroke;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GraphicsConfiguration;
@@ -13,6 +14,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,15 +38,20 @@ import javax.swing.JTextField;
 import javax.swing.SpringLayout;
 import javax.swing.UIManager;
 
+
 public class Terminal extends JFrame {
 	private static final String APP_TITLE = "SSH";
 	/** Creates new form CelsiusConverterGUI */
     private JTextArea prevCmds;     
     private JTextField terminalInput;
     private JTextArea helpText;
+    private cmdWindow cmdWindowOne;
+    private Component saveCommand;
     private Help helpTxt;
     private CapturePane capturePane;
-	
+    private ServerFileBrowser sfb;
+	private int favoriteMem = 0;
+	private int recentMem = 0;
     public Terminal() {
     	helpTxt = new Help();
         initComponents();
@@ -72,6 +81,9 @@ public class Terminal extends JFrame {
     	terminalInput = new javax.swing.JTextField(82);
     	terminalInput.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, Collections.<AWTKeyStroke> emptySet());
     	
+    	saveCommand = new JButton("Save");
+		this.add(saveCommand);
+		
     	prevCmds = new javax.swing.JTextArea(24,24);
     	prevCmds.setBackground(new Color(0,0,0,100));
     	prevCmds.setForeground(new Color(255,255,255,100));
@@ -86,15 +98,71 @@ public class Terminal extends JFrame {
     	
     	capturePane = new CapturePane();
     	
+		saveCommand.addMouseListener(new MouseAdapter() {
+		     public void mousePressed(MouseEvent arg0) {
+		    	 
+		    	 if(favoriteMem == 0){
+		    		 ((JButton)cmdWindowOne.favButton1).setText(terminalInput.getText());
+		    	 }
+		    	 else if(favoriteMem == 1){
+		    		 ((JButton)cmdWindowOne.favButton2).setText(terminalInput.getText());
+		    	 }
+		    	 else if(favoriteMem == 2){
+		    		 ((JButton)cmdWindowOne.favButton3).setText(terminalInput.getText());
+		    	 }
+		    	 else if(favoriteMem == 3){
+		    		 ((JButton)cmdWindowOne.favButton4).setText(terminalInput.getText());
+		    	 }
+		    	 else if(favoriteMem == 4){
+		    		 ((JButton)cmdWindowOne.favButton5).setText(terminalInput.getText());
+		    	 }
+		    	 if(favoriteMem < 4){
+		    		 favoriteMem++;
+		    	 }
+		    	 else if(favoriteMem == 4){
+		    		 favoriteMem = 0;
+		    	 }
+		     }
+		  });
+    	
+    	
     	terminalInput.addKeyListener(new KeyListener() {
 			@Override
 			public void keyPressed(KeyEvent arg0) {
 				// TODO Auto-generated method stub
 				if(arg0.getKeyCode() == KeyEvent.VK_TAB)
 				{
+					
 					//auto-fill with a file/directory name in the current directory
 					//or just send the tab key, if possible
 					terminalInput.setText(terminalInput.getText() + ((char)9));
+					
+				}
+				else if(arg0.getKeyCode() == KeyEvent.VK_ENTER){
+					
+					if(recentMem == 0){
+			    		 ((JButton)cmdWindowOne.recButton1).setText(terminalInput.getText());
+			    	 }
+			    	 else if(recentMem == 1){
+			    		 ((JButton)cmdWindowOne.recButton2).setText(terminalInput.getText());
+			    	 }
+			    	 else if(recentMem == 2){
+			    		 ((JButton)cmdWindowOne.recButton3).setText(terminalInput.getText());
+			    	 }
+			    	 else if(recentMem == 3){
+			    		 ((JButton)cmdWindowOne.recButton4).setText(terminalInput.getText());
+			    	 }
+			    	 else if(recentMem == 4){
+			    		 ((JButton)cmdWindowOne.recButton5).setText(terminalInput.getText());
+			    	 }
+			    	 if(recentMem < 4){
+			    		 recentMem++;
+			    	 }
+			    	 else if(recentMem == 4){
+			    		 recentMem = 0;
+			    	 }
+					
+					
 				}
 			}
 
@@ -118,7 +186,7 @@ public class Terminal extends JFrame {
 				
 			}
 		});
-    	TexfFieldStreamer ts = new TexfFieldStreamer(terminalInput);
+    	TextFieldStreamer ts = new TextFieldStreamer(terminalInput);
     	terminalInput.addActionListener(ts);
     	
     	System.setIn(ts);
@@ -127,10 +195,15 @@ public class Terminal extends JFrame {
     	JSplitPane sps = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tp, help);
     	//sps.setDividerLocation((1.0 / 2.0));
     	
+    	sfb = new ServerFileBrowser();
+    	sfb.tfs = ts;
+    	sfb.capturePane = capturePane;
+    	
+    	 cmdWindowOne = new cmdWindow(terminalInput);
     	
     	//fill in with commands component
     	//replace fileBro as well
-    	JSplitPane sp2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, null, null);
+    	JSplitPane sp2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, sfb, cmdWindowOne.initialize());
     	
     	JSplitPane splitPane = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
@@ -142,11 +215,12 @@ public class Terminal extends JFrame {
     	BorderLayout bl = new BorderLayout();
     	this.setLayout(bl);
     	bl.addLayoutComponent(splitPane, BorderLayout.CENTER);
-    	this.setPreferredSize(new Dimension(900,480));
+    	this.setPreferredSize(new Dimension(950,600));
     	sps.setDividerLocation((int)(Math.floor(this.getPreferredSize().height * 2.0 / 3.0)));
     	sp2.setDividerLocation((int)(Math.floor(this.getPreferredSize().height / 2.0)));
-    	splitPane.setDividerLocation(150);
-            
+    	sp2.setDividerLocation(405);
+    	splitPane.setDividerLocation(258);
+        
     	this.add(splitPane);
     	
     	this.pack();
@@ -164,6 +238,9 @@ public class Terminal extends JFrame {
     	
     	private void initialize()
     	{
+//    		Component saveCommand = new JButton("Save");
+    		this.add(saveCommand);
+    		
         	SpringLayout layout = new SpringLayout();
         	layout.putConstraint(SpringLayout.NORTH, capturePane, 5, SpringLayout.NORTH, this);
         	layout.putConstraint(SpringLayout.WEST, capturePane, 5, SpringLayout.WEST, this);
@@ -171,7 +248,11 @@ public class Terminal extends JFrame {
         	layout.putConstraint(SpringLayout.SOUTH, this, 30, SpringLayout.SOUTH, capturePane);
         	layout.putConstraint(SpringLayout.NORTH, terminalInput, 5, SpringLayout.SOUTH, capturePane);
         	layout.putConstraint(SpringLayout.WEST, terminalInput, 5, SpringLayout.WEST, this);
-        	layout.putConstraint(SpringLayout.EAST, this, 5, SpringLayout.EAST, terminalInput);
+        	
+        	layout.putConstraint(SpringLayout.NORTH, saveCommand, 3, SpringLayout.SOUTH, capturePane);
+        	layout.putConstraint(SpringLayout.WEST, saveCommand, 5, SpringLayout.EAST, terminalInput);
+        	layout.putConstraint(SpringLayout.EAST, this, 5, SpringLayout.EAST, saveCommand);
+
         	
         	this.setLayout(layout);
         	this.add(terminalInput);
@@ -239,7 +320,7 @@ public class Terminal extends JFrame {
     
     public class CapturePane extends JPanel implements Consumer {
 
-        private JTextArea output;
+        public JTextArea output;
 
         public CapturePane() {
             setLayout(new BorderLayout());
@@ -316,13 +397,13 @@ public class Terminal extends JFrame {
     
 //http://stackoverflow.com/questions/9244108/redirect-system-in-to-swing-component
     
-    public class TexfFieldStreamer extends InputStream implements ActionListener {
+    public class TextFieldStreamer extends InputStream implements ActionListener {
 
-        private JTextField tf;
+        public JTextField tf;
         private String str = null;
         private int pos = 0;
 
-        public TexfFieldStreamer(JTextField jtf) {
+        public TextFieldStreamer(JTextField jtf) {
             tf = jtf;
         }
 
