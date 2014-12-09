@@ -100,20 +100,8 @@ public class Terminal extends JFrame {
 
 			@Override
 			public void keyReleased(KeyEvent arg0) {
-				
-			}
-
-			@Override
-			public void keyTyped(KeyEvent arg0) {
 				Vector<String> tmp;
-				if(terminalInput.getText().indexOf(' ') >= 0)
-				{
-					tmp = helpTxt.keyDescr(terminalInput.getText().substring(0, terminalInput.getText().indexOf(' ')));
-				}
-				else
-				{
-					tmp = helpTxt.keyDescr(terminalInput.getText());
-				}
+				tmp = helpTxt.keyDescr((terminalInput.getText()) .split(" ")[0]);
 				if(tmp != null)
 				{
 					helpText.setText(printVector(tmp));
@@ -123,6 +111,11 @@ public class Terminal extends JFrame {
 					helpText.setText("");
 				}
 					
+			}
+
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				
 			}
 		});
     	TexfFieldStreamer ts = new TexfFieldStreamer(terminalInput);
@@ -134,26 +127,17 @@ public class Terminal extends JFrame {
     	JSplitPane sps = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tp, help);
     	//sps.setDividerLocation((1.0 / 2.0));
     	
-    	FileBrowser fileBro = new FileBrowser();
-    	try {
-            URL urlBig = fileBro.getClass().getResource("fb-icon-32x32.png");
-            URL urlSmall = fileBro.getClass().getResource("fb-icon-16x16.png");
-            ArrayList<Image> images = new ArrayList<Image>();
-            images.add( ImageIO.read(urlBig) );
-            images.add( ImageIO.read(urlSmall) );
-            this.setIconImages(images);
-        } catch(Exception weTried) {}
     	
     	//fill in with commands component
     	//replace fileBro as well
-    	JSplitPane sp2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, fileBro.getGui(), null);
+    	JSplitPane sp2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, null, null);
     	
     	JSplitPane splitPane = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 sp2,
                 sps);
             
-    	fileBro.showRootFile();
+    	//fileBro.showRootFile();
     	
     	BorderLayout bl = new BorderLayout();
     	this.setLayout(bl);
