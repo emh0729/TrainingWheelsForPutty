@@ -49,14 +49,9 @@ public class Terminal extends JFrame {
     private Component saveCommand;
     private Help helpTxt;
     private CapturePane capturePane;
-<<<<<<< HEAD
     private ServerFileBrowser sfb;
-	
-=======
 	private int favoriteMem = 0;
 	private int recentMem = 0;
-    
->>>>>>> d2f1b9d51a9a211f85fb7d31a495485361d5f9b3
     public Terminal() {
     	helpTxt = new Help();
         initComponents();
