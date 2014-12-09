@@ -22,7 +22,7 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class Shell{
-	public static final String APP_TITLE = "SSH";
+	public static final String APP_TITLE = "Training Wheels For PuTTY";
   public static void main(String[] arg){
 //	  SwingUtilities.invokeLater(new Runnable() {
 //          public void run() {

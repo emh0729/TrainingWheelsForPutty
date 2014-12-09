@@ -176,7 +176,15 @@ public class Terminal extends JFrame {
 				}
 				else
 				{
-					helpText.setText("");
+					tmp = helpTxt.letterDescr((terminalInput.getText()) .split(" ")[0]);
+					if(tmp.size() > 0)
+					{
+						helpText.setText("Valid commands:\n" + printVector(tmp));
+					}
+					else
+					{
+						helpText.setText("");
+					}
 				}
 					
 			}
