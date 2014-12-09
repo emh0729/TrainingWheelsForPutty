@@ -42,6 +42,7 @@ public class Terminal extends JFrame {
     private JTextArea helpText;
     private Help helpTxt;
     private CapturePane capturePane;
+    private ServerFileBrowser sfb;
 	
     public Terminal() {
     	helpTxt = new Help();
@@ -125,7 +126,7 @@ public class Terminal extends JFrame {
 					
 			}
 		});
-    	TexfFieldStreamer ts = new TexfFieldStreamer(terminalInput);
+    	TextFieldStreamer ts = new TextFieldStreamer(terminalInput);
     	terminalInput.addActionListener(ts);
     	
     	System.setIn(ts);
@@ -133,6 +134,10 @@ public class Terminal extends JFrame {
     	TerminalPane tp = new TerminalPane();
     	JSplitPane sps = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tp, help);
     	//sps.setDividerLocation((1.0 / 2.0));
+    	
+    	sfb = new ServerFileBrowser();
+    	sfb.tfs = ts;
+    	sfb.capturePane = capturePane;
     	
     	FileBrowser fileBro = new FileBrowser();
     	try {
@@ -146,14 +151,14 @@ public class Terminal extends JFrame {
     	
     	//fill in with commands component
     	//replace fileBro as well
-    	JSplitPane sp2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, fileBro.getGui(), null);
+    	JSplitPane sp2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, sfb, null);
     	
     	JSplitPane splitPane = new JSplitPane(
                 JSplitPane.HORIZONTAL_SPLIT,
                 sp2,
                 sps);
             
-    	fileBro.showRootFile();
+    	//fileBro.showRootFile();
     	
     	BorderLayout bl = new BorderLayout();
     	this.setLayout(bl);
@@ -255,7 +260,7 @@ public class Terminal extends JFrame {
     
     public class CapturePane extends JPanel implements Consumer {
 
-        private JTextArea output;
+        public JTextArea output;
 
         public CapturePane() {
             setLayout(new BorderLayout());
@@ -332,13 +337,13 @@ public class Terminal extends JFrame {
     
 //http://stackoverflow.com/questions/9244108/redirect-system-in-to-swing-component
     
-    public class TexfFieldStreamer extends InputStream implements ActionListener {
+    public class TextFieldStreamer extends InputStream implements ActionListener {
 
-        private JTextField tf;
+        public JTextField tf;
         private String str = null;
         private int pos = 0;
 
-        public TexfFieldStreamer(JTextField jtf) {
+        public TextFieldStreamer(JTextField jtf) {
             tf = jtf;
         }
 
